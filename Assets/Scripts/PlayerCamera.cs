@@ -19,16 +19,16 @@ public class PlayerCamera : MonoBehaviour
 
     private void Update() 
     {
-        float mouseX = Input.GetAxis("Mouse X") * sensX * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * sensY * Time.deltaTime;
+        float mouseX = Input.GetAxis("Mouse X") * sensX * Time.fixedDeltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * sensY * Time.fixedDeltaTime;
 
         xRotation -= mouseY;
         yRotation += mouseX;
 
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0);
-        orientation.localRotation = Quaternion.Euler(0, yRotation, 0);
+        transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+        orientation.rotation = Quaternion.Euler(0, yRotation, 0);
     }
 
     
