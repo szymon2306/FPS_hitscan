@@ -2,10 +2,16 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    [Header("References")]
+    private PlayerScript playerScript;
+    Rigidbody rb;
+
     [Header("Movement")]
     private float moveSpeed;
     public float walkSpeed;
     public float sprintSpeed;
+
+    public float staminaDrainRate;
 
     public float groundDrag;
 
@@ -36,18 +42,12 @@ public class PlayerMovement : MonoBehaviour
     private RaycastHit slopeHit;
     private bool exitingSlope;
 
-
     public Transform orientation;
-
     float horizontalInput;
     float verticalInput;
-
     Vector3 moveDirection;
 
-    Rigidbody rb;
-
     public MovementMode movementMode;
-
     public enum MovementMode
     {
         Walking,
@@ -64,16 +64,32 @@ public class PlayerMovement : MonoBehaviour
         readyToJump = true; // start ready to jump
 
         startYScale = transform.localScale.y; // store the original y scale of the player
+
+        playerScript = GetComponent<PlayerScript>();
     }
 
     private void Update()
     {
+        bool isTryingToSprint = Input.GetKey(sprintKey);
+        bool canDrainStamina = isTryingToSprint && playerScript.currentStamina > 0;
+
         // ground check
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
 
         MyInput();
         SpeedControl();
         StateHandler();
+
+        if (canDrainStamina && (movementMode == MovementMode.Sprinting || movementMode == MovementMode.Air))
+        {
+            playerScript.UseStamina(Time.deltaTime * staminaDrainRate); // Adjust rate as needed
+        }
+
+        if (playerScript.currentStamina <= 0 && movementMode == MovementMode.Sprinting)
+        {
+            movementMode = grounded ? MovementMode.Walking : MovementMode.Air;
+            moveSpeed = walkSpeed;
+        }
 
         // apply drag on ground
         if (grounded)
@@ -122,7 +138,7 @@ public class PlayerMovement : MonoBehaviour
     public void StateHandler()
     {
         // Mode - Sprinting
-        if (grounded && Input.GetKey(sprintKey))
+        if (grounded && Input.GetKey(sprintKey) && playerScript.currentStamina > 0)
         {
             movementMode = MovementMode.Sprinting;
             moveSpeed = sprintSpeed;

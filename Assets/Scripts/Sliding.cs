@@ -8,6 +8,8 @@ public class Sliding : MonoBehaviour
     private Rigidbody rb;
     private PlayerMovement playerMovement;
 
+    private PlayerScript playerScript;
+
     [Header("Sliding")]
     public float maxSlideTime;
     public float slideForce;
@@ -15,6 +17,8 @@ public class Sliding : MonoBehaviour
     
     public float slideYScale;
     private float startYScale;
+
+    public float staminaDrainRate; // Adjust this value to control the stamina drain rate
 
     [Header("Keybinds")]
     public KeyCode slideKey = KeyCode.LeftControl;
@@ -27,18 +31,29 @@ public class Sliding : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         playerMovement = GetComponent<PlayerMovement>();
+        playerScript = GetComponent<PlayerScript>();
         startYScale = player.localScale.y;
     }
 
     private void Update()
     {
+        bool isTryingToSlide = Input.GetKey(slideKey);
+        bool canDrainStamina = isTryingToSlide && playerScript.currentStamina => staminaDrainRate;
+
         horizontalInput = Input.GetAxis("Horizontal");
         verticalInput = Input.GetAxis("Vertical");
 
+        if (canDrainStamina && Input.GetKeyDown(slideKey) && (horizontalInput != 0 || verticalInput != 0))
+        {
+            playerScript.UseStamina(staminaDrainRate); // Adjust rate as needed
+            StartSlide();
+        }
+        
+        /*
         if (Input.GetKeyDown(slideKey) && (horizontalInput != 0 || verticalInput != 0))
         {
             StartSlide();
-        }
+        }*/
 
         if (Input.GetKeyUp(slideKey) && sliding)
         {

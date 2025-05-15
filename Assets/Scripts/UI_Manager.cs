@@ -1,19 +1,42 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class PlayerUIManager : MonoBehaviour
 {
     public PlayerMovement playerMovement;
+    public PlayerScript playerScript;
+
+    [Header("Player Stats")]
     public TextMeshProUGUI speedText;
     public TextMeshProUGUI modeText;
 
     private Rigidbody playerRb;
+
+
+    [Header("Health UI")]
+    public TextMeshProUGUI healthText;
+    public Slider healthBar;
+
+    [Header("Stamina UI")]
+    public TextMeshProUGUI staminaText;
+    public Slider staminaBar;
 
     void Start()
     {
         if (playerMovement != null)
         {
             playerRb = playerMovement.GetComponent<Rigidbody>();
+        }
+
+        if (playerScript != null)
+        {
+            playerScript.onHealthChanged += UpdateHealthUI;
+            playerScript.onStaminaChanged += UpdateStaminaUI;
+
+            // Initialize UI
+            UpdateHealthUI(playerScript.currentHealth, playerScript.maxHealth);
+            UpdateStaminaUI(playerScript.currentStamina, playerScript.maxStamina);
         }
     }
 
@@ -30,5 +53,23 @@ public class PlayerUIManager : MonoBehaviour
 
         if (modeText != null)
             modeText.text = $"{playerMovement.movementMode}";
+    }
+
+    void UpdateHealthUI(float current, float max)
+    {
+        if (healthText != null)
+            healthText.text = $"Health: {current:F0} / {max}";
+
+        if (healthBar != null)
+            healthBar.value = current / max;
+    }
+
+    void UpdateStaminaUI(float current, float max)
+    {
+        if (staminaText != null)
+            staminaText.text = $"Stamina: {current:F0} / {max}";
+        
+        if (staminaBar != null)
+            staminaBar.value = current / max;
     }
 }

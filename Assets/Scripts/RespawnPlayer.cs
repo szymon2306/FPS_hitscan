@@ -5,6 +5,10 @@ public class RespawnPlayer : MonoBehaviour
 
     public GameObject player;
     public Transform respawnPoint;
+    public Vector3 spawnPoint;
+    private Vector3 spawnDirection = Vector3.forward;
+    private bool hasSpawnPoint = false;
+    public bool showSpawnGizmo = true;
 
     public KeyCode respawnKey = KeyCode.R;
 
@@ -28,16 +32,25 @@ public class RespawnPlayer : MonoBehaviour
     {
         // spawn a respawn point at the player's position
         respawnPoint.position = player.transform.position;
-
-        // draw a gizmo at the respawn point for debugging
-        Gizmos.DrawSphere(respawnPoint.position, 0.5f);
-        Gizmos.color = Color.red;
+        spawnPoint = player.transform.position;
+        spawnDirection = transform.forward;
+        hasSpawnPoint = true;
     }
 
     private void Respawn()
     {
         player.transform.position = respawnPoint.position;
         player.transform.rotation = respawnPoint.rotation;
+    }
+
+        private void OnDrawGizmos()
+    {
+        if (!showSpawnGizmo || !hasSpawnPoint) return;
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(spawnPoint, 0.3f);
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(spawnPoint, spawnPoint + spawnDirection * 2f);
     }
 
 }
